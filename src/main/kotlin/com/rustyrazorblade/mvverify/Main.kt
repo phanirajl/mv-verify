@@ -27,6 +27,7 @@ fun main(args: Array<String>) {
 
     val prepared = session.prepare(preparedQuery)
 
+    var checked = 0
     for (row in session.execute(scanQuery)) {
         var bound = prepared.bind()
         for(field in mvPk) {
@@ -38,6 +39,10 @@ fun main(args: Array<String>) {
 
         if (mvMatch.count() == 0) {
             println("Error, MV row not found")
+        }
+        checked++
+        if(checked % 100 == 0) {
+            println("Checked $checked records.")
         }
     }
     println("Finished checking MV against base table.")
