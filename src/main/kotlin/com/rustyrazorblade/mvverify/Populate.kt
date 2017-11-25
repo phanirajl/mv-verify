@@ -8,32 +8,9 @@ import java.util.Random
 
 fun main(args: Array<String>) {
 
-    var options = QueryOptions()
-    options.consistencyLevel = ConsistencyLevel.ONE
+    var database = Database()
 
-    var cluster = Cluster.builder()
-                         .addContactPoint("127.0.0.1")
-                         .withQueryOptions(options)
-                         .build()
-    var session = cluster.connect()
-
-    session.execute("CREATE KEYSPACE IF NOT EXISTS mvtest " +
-                    "WITH replication = " +
-                    "{'class': 'SimpleStrategy', " +
-                    "'replication_factor': 3}")
-    session.execute("USE mvtest")
-
-    session.execute("CREATE table IF NOT EXISTS base ( " +
-                    "k int primary key, " +
-                    "v int " +
-                    ")")
-
-    session.execute("CREATE MATERIALIZED VIEW if not exists mv AS " +
-                    "SELECT v, k FROM base " +
-                    "WHERE v is not null " +
-                    "primary key (v, k)")
-
-    var prepared = session.prepare("INSERT INTO base (k, v) VALUES (?, ?)")
+    var prepared = database.session.prepare("INSERT INTO base (k, v) VALUES (?, ?)")
     var random = Random()
     var results = mutableListOf<ResultSetFuture>()
 
@@ -49,7 +26,7 @@ fun main(args: Array<String>) {
         bound.setInt(0, rand)
         bound.setInt(1, rand2)
 
-        var result  = session.executeAsync(bound)
+        var result  = database.session.executeAsync(bound)
         results.add(result)
 
         if(i % 500 == 0) {

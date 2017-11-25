@@ -8,14 +8,9 @@ fun main(args: Array<String>) {
     println("Running verify")
 
     var errors = 0
+    var database = Database()
 
-    var options = QueryOptions()
-    options.consistencyLevel = ConsistencyLevel.ONE
-
-    var cluster = Cluster.builder().addContactPoint("127.0.0.1").withQueryOptions(options).build()
-    var session = cluster.connect("mvtest")
-
-    var keyspace =  cluster.metadata.getKeyspace("mvtest")
+    var keyspace =  database.cluster.metadata.getKeyspace("mvtest")
     val mv = keyspace.getMaterializedView("mv")
     val mvPk = mv.primaryKey
 
@@ -30,17 +25,17 @@ fun main(args: Array<String>) {
 
     val scanQuery = "SELECT * from base"
 
-    val prepared = session.prepare(preparedQuery)
+    val prepared = database.session.prepare(preparedQuery)
 
     var checked = 0
-    for (row in session.execute(scanQuery)) {
+    for (row in database.session.execute(scanQuery)) {
         var bound = prepared.bind()
         for(field in mvPk) {
             var mvValue = row.getInt(field.name)
             bound.setInt(field.name, mvValue)
         }
 
-        var mvMatch = session.execute(bound)
+        var mvMatch = database.session.execute(bound)
 
         if (mvMatch.count() == 0) {
             println("Error, MV row not found $mvPk")
@@ -68,9 +63,9 @@ fun main(args: Array<String>) {
 
     val basePreparedQuery = getPreparedQuery("mv", names)
     println("Preparing $basePreparedQuery")
-    var preparedBaseCheck = session.prepare(basePreparedQuery)
+    var preparedBaseCheck = database.session.prepare(basePreparedQuery)
 
-    for (row in session.execute(mvScanQuery)) {
+    for (row in database.session.execute(mvScanQuery)) {
         var bound = preparedBaseCheck.bind()
 
         val k = row.getInt("k")
@@ -79,7 +74,7 @@ fun main(args: Array<String>) {
         bound.setInt(0, k)
         bound.setInt(1, v)
 
-        var mvMatch = session.execute(bound)
+        var mvMatch = database.session.execute(bound)
 
         if (mvMatch.count() == 0) {
             println("Error, base row not found, k=$k, v=$v")
