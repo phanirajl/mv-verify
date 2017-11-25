@@ -1,12 +1,22 @@
 package com.rustyrazorblade.mvverify
 
 import com.datastax.driver.core.Cluster
+import com.datastax.driver.core.ConsistencyLevel
+import com.datastax.driver.core.QueryOptions
 import com.datastax.driver.core.ResultSetFuture
 import java.util.Random
 
 fun main(args: Array<String>) {
-    var cluster = Cluster.builder().addContactPoint("127.0.0.1").build()
+
+    var options = QueryOptions()
+    options.consistencyLevel = ConsistencyLevel.ONE
+
+    var cluster = Cluster.builder()
+                         .addContactPoint("127.0.0.1")
+                         .withQueryOptions(options)
+                         .build()
     var session = cluster.connect()
+
     session.execute("CREATE KEYSPACE IF NOT EXISTS mvtest " +
                     "WITH replication = " +
                     "{'class': 'SimpleStrategy', " +
@@ -50,4 +60,6 @@ fun main(args: Array<String>) {
 
     println("Done.")
 
+
 }
+
