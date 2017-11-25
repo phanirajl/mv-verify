@@ -1,8 +1,5 @@
 package com.rustyrazorblade.mvverify
 
-import com.datastax.driver.core.Cluster
-import com.datastax.driver.core.ConsistencyLevel
-import com.datastax.driver.core.QueryOptions
 import com.datastax.driver.core.ResultSetFuture
 import java.util.Random
 

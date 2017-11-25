@@ -1,9 +1,5 @@
 package com.rustyrazorblade.mvverify
 
-import com.datastax.driver.core.Cluster
-import com.datastax.driver.core.ConsistencyLevel
-import com.datastax.driver.core.QueryOptions
-
 fun main(args: Array<String>) {
     println("Running verify")
 
