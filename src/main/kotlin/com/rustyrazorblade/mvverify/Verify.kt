@@ -57,7 +57,8 @@ fun main(args: Array<String>) {
         baseNames.add(key.name)
     }
 
-    val basePreparedQuery = getPreparedQuery("mv", names)
+    val basePreparedQuery = "SELECT * from base WHERE k = ?"
+            //getPreparedQuery("base", names)
     println("Preparing $basePreparedQuery")
     var preparedBaseCheck = database.session.prepare(basePreparedQuery)
 
@@ -68,7 +69,7 @@ fun main(args: Array<String>) {
         val v = row.getInt("v")
 
         bound.setInt(0, k)
-        bound.setInt(1, v)
+//        bound.setInt(1, v)
 
         var mvMatch = database.session.execute(bound)
 
