@@ -46,8 +46,6 @@ fun main(args: Array<String>) {
 
     println("Checking base table against MV data.")
 
-    val mvScanQuery = "SELECT * from mv"
-
     var baseTable = keyspace.getTable("base")
     var basePk = baseTable.primaryKey
 
@@ -62,7 +60,7 @@ fun main(args: Array<String>) {
     println("Preparing $basePreparedQuery")
     var preparedBaseCheck = database.session.prepare(basePreparedQuery)
 
-    for (row in database.session.execute(mvScanQuery)) {
+    for (row in database.session.execute("SELECT k, v from mv")) {
         var bound = preparedBaseCheck.bind()
 
         val k = row.getInt("k")
@@ -71,12 +69,18 @@ fun main(args: Array<String>) {
         bound.setInt(0, k)
 //        bound.setInt(1, v)
 
-        var mvMatch = database.session.execute(bound)
+        var mvMatch = database.session.execute(bound).one()
 
-        if (mvMatch.count() == 0) {
+
+        if (mvMatch == null ) {
             println("Error, base row not found, k=$k, v=$v")
             errors++
+        } else if(mvMatch.getInt("v") != v ){
+            println("Error, wrong value found, k=$k, v=$v")
+            errors++
+
         }
+
         checked++
         if(checked % 100 == 0) {
             println("Checked $checked records.")

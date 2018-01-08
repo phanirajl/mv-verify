@@ -3,6 +3,7 @@ package com.rustyrazorblade.mvverify
 import com.datastax.driver.core.ResultSetFuture
 import java.util.Random
 
+
 fun main(args: Array<String>) {
 
     var database = Database()
@@ -13,6 +14,8 @@ fun main(args: Array<String>) {
 
     val iterations = 1000000
     val max = 10000
+
+    val start = System.nanoTime()
 
     for(i in 1..iterations){
         val rand = random.nextInt(max)
@@ -32,7 +35,9 @@ fun main(args: Array<String>) {
         }
     }
 
-    println("Done.")
+    val totalTime = System.nanoTime() - start
+
+    println("Done. $totalTime")
 
 
 }
